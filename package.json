@@ -1,0 +1,19 @@
+{
+  "name": "crashsafe-sync-demo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "repository": "github:yashmborkar/crashsafe-sync-demo",
+  "engines": {
+    "node": ">=20.12"
+  },
+  "scripts": {
+    "start": "node src/server.mjs",
+    "migrate": "node src/migrate.mjs",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "@yashborkar/crashsafe-sync": "1.0.0",
+    "pg": "8.23.1"
+  }
+}

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Test checkpoint rollback and recovery against PostgreSQL with the published crashsafe-sync package.">
+  <meta name="theme-color" content="#101019">
+  <title>Crashsafe Sync Demo</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to dashboard</a>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="/"><span class="brand-icon" aria-hidden="true">↻</span> Crashsafe Sync Demo</a>
+      <a class="package" href="https://www.npmjs.com/package/@yashborkar/crashsafe-sync/v/1.0.0"><span class="package-name">@yashborkar/crashsafe-sync</span><span class="version">v1.0.0</span></a>
+    </div>
+  </header>
+  <main class="shell" id="main">
+    <header class="intro">
+      <div>
+        <p class="eyebrow">POSTGRESQL RECOVERY DEMO</p>
+        <h1>Customer import</h1>
+        <p class="lede">Import 35 customers, interrupt a page mid-write, and resume from the last committed checkpoint.</p>
+      </div>
+      <div class="status" id="status" data-state="loading" aria-live="polite"><span class="dot"></span><span id="status-label">Connecting</span></div>
+    </header>
+
+    <section class="metrics" aria-label="Import metrics">
+      <div class="card metric"><span>Customers imported</span><strong id="count">—</strong><small>Unique customer IDs</small></div>
+      <div class="card metric"><span>Pages committed</span><strong id="pages">—</strong><small>10 customers per full page</small></div>
+      <div class="card metric"><span>Current checkpoint</span><code id="checkpoint">—</code><small id="checkpoint-help">Continuation cursor in PostgreSQL</small></div>
+    </section>
+
+    <div class="dashboard">
+      <div class="primary">
+        <section class="card progress-card" aria-labelledby="progress-title">
+          <div class="section-head"><h2 id="progress-title">Import progress</h2><strong id="percent">—</strong></div>
+          <div class="meter" role="progressbar" aria-labelledby="progress-title" aria-valuemin="0" aria-valuemax="35" aria-valuenow="0" id="meter">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <div class="progress-caption"><span id="progress-label">Waiting for database</span><span>35 customers total</span></div>
+        </section>
+        <section class="card customer-card" aria-labelledby="customers-title">
+          <div class="section-head customer-head"><h2 id="customers-title">Imported customers</h2><span class="tag">PostgreSQL</span></div>
+          <div class="empty" id="empty"><span class="empty-symbol" aria-hidden="true">≡</span><strong>No customers imported</strong><span>Run one page to commit the first 10 records.</span></div>
+          <div class="table-wrap" id="table-wrap" tabindex="0" aria-label="Imported customer data" hidden>
+            <table>
+              <thead><tr><th scope="col">Customer ID</th><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Company</th></tr></thead>
+              <tbody id="customer-rows"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+      <aside class="secondary" aria-label="Demo controls and activity">
+        <section class="card action-card" aria-labelledby="action-title">
+          <div class="section-head"><h2 id="action-title">Run the demo</h2><button class="reset" id="restart" type="button" disabled>New run</button></div>
+          <p>Run one page, simulate a write failure, then resume the import.</p>
+          <div class="actions">
+            <button class="action step" type="button" data-action="step" disabled><span aria-hidden="true">▶</span> Run one page</button>
+            <button class="action fail" type="button" data-action="fail" disabled><span aria-hidden="true">!</span> Simulate write failure</button>
+            <button class="action resume" type="button" data-action="resume" disabled><span aria-hidden="true">↻</span> Resume sync</button>
+          </div>
+          <p id="action-error" role="alert" hidden></p>
+          <button id="refresh" class="reset" type="button" hidden>Refresh dashboard</button>
+        </section>
+        <section class="card activity-card" aria-labelledby="activity-title">
+          <div class="section-head"><h2 id="activity-title">Run activity</h2><span class="live-indicator" aria-hidden="true"></span></div>
+          <ol id="activity" aria-live="polite" aria-relevant="additions"></ol>
+          <p id="activity-empty">Page commits and rollback results appear here.</p>
+        </section>
+      </aside>
+    </div>
+
+    <section class="card guarantees" aria-labelledby="guarantees-title">
+      <h2 id="guarantees-title">What the library guarantees</h2>
+      <div class="guarantee-grid">
+        <div><h3>Atomic page commits</h3><p>Customer UPSERTs and the checkpoint commit in one PostgreSQL transaction. A database error rolls back that page.</p></div>
+        <div><h3>One active worker per sync key</h3><p>Leases coordinate workers. Fencing blocks an old worker from committing after another worker takes over.</p></div>
+        <div><h3>At-least-once processing</h3><p>Pages can be replayed. Stable IDs and UPSERTs prevent duplicate rows here. Exactly-once callbacks and external effects are outside the guarantee.</p></div>
+      </div>
+    </section>
+    <footer><span>Synthetic customer data</span><a href="https://github.com/yashmborkar/crashsafe-sync">Library source</a><a href="https://github.com/yashmborkar/crashsafe-sync-demo">Demo source</a></footer>
+  </main>
+</body>
+</html>
